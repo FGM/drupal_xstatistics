@@ -1,0 +1,67 @@
+<?php
+/* Link hook, defines module's links */
+function xstatistics_link($type, $node = 0, $main = 0) {
+   if ($type == "system") {
+    if ((user_access("administer xstatistics module") || (user_access("administer xstatistics")))) {
+      menu("admin/statistics/summary", t("Statistics Summary"), "xstatistics_render", 10);
+  }
+  }
+}
+function xstatistics_help($section = "admin/help#xstatistics") {
+  $output = "";
+
+  switch ($section) {
+   case 'admin/system/modules#description':
+      $output = t("Extends statistics for your site.");
+      break;
+    case 'admin/xstatistics':
+      $output = t("This page shows usage statistics of your site");
+      break;
+  }
+  return $output;
+}
+
+//function xstatistics_page() {
+//  if (user_access("access statistics")) {
+//    return xstatistics_render();
+//  }
+//  else {
+//    theme("header");
+//    theme("box", t("Access denied"), message_access());
+//    theme("footer");
+//  }
+//}
+
+function xstatistics_render() {
+  //prepare amount of nodes
+  $count_nodes_tot = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node}"));
+  $count_nodes_pub = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node} WHERE status=1"));
+  $count_nodes_que = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node} WHERE moderate=1"));
+  
+  //prepare amount of users
+  $count_users_tot =  db_fetch_array(db_query("SELECT COUNT(uid) FROM {users}"));
+  
+  //prepare amount of comments
+  $count_comments_tot =  db_fetch_array(db_query("SELECT COUNT(cid) FROM {comments} WHERE status=1"));
+
+  //prepare amount of node_views today
+  $res =  db_query("SELECT totalcount, daycount FROM {node_counter}");
+  while($count = db_fetch_object($res)) {
+    $count_nodes_view_tot = $count_nodes_view_tot + $count->totalcount;
+    $count_nodes_view_day = $count_nodes_view_day + $count->daycount;
+  }
+ 
+  $header = array("description", "value");
+  $rows = array(array(t("Total amount of nodes"),$count_nodes_tot['COUNT(nid)']),
+                  array(t("Total amount of published nodes"),$count_nodes_pub['COUNT(nid)']),
+          array(t("Total amount of nodes in the queue"),$count_nodes_que['COUNT(nid)']),
+          array(t("Total amount of comments"),$count_comments_tot['COUNT(cid)']),
+          array(t("Total amount of users"),$count_users_tot['COUNT(uid)']),
+          array(t("Total amount of viewed nodes"),$count_nodes_view_tot),
+          array(t("Total amount of viewed nodes today"),$count_nodes_view_day)
+          );
+  
+  $output = table($header, $rows);
+  return $output;
+}
+?>

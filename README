@@ -1,0 +1,45 @@
+﻿********************************************************************
+                     D R U P A L    M O D U L E                         
+********************************************************************
+Name: xstatistics
+Version: 1.0
+Author: Ber Kessels
+Email: berkessels at gmx dot net
+Last update: 11-12-2003 
+Drupal: 4.3
+
+********************************************************************
+DESCRIPTION:
+
+Displays a table with some summarised statistics.
+Currently the following data is displayed
+
+Total amount of nodes			523
+Total amount of published nodes		344
+Total amount of nodes in the queue	133
+Total amount of comments		0
+Total amount of users			11
+Total amount of viewed nodes		539
+Total amount of viewed nodes today	88
+
+********************************************************************
+INSTALLATION: 
+
+Copy the xstatistics.module file into your Drupal modules/ directory.
+
+Enable the xstatistics module in your administration settings:
+menu -> administer -> configuration -> modules
+
+********************************************************************
+TODO:
+
+- The table can be extended fairly easy. Please place feature requests
+  if you require any data in the table
+- table rows that are on my wishlist but require some more complicated
+  code are:
+    - Total amount of users that were logged in last day
+    - Total amount of comments that are published (if check is enabled)
+    - Total amount of distinct hosts served
+    - Total amount of added nodes in past day
+
+********************************************************************
