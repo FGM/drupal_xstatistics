@@ -21,17 +21,6 @@ function xstatistics_help($section = "admin/help#xstatistics") {
   return $output;
 }
 
-//function xstatistics_page() {
-//  if (user_access("access statistics")) {
-//    return xstatistics_render();
-//  }
-//  else {
-//    theme("header");
-//    theme("box", t("Access denied"), message_access());
-//    theme("footer");
-//  }
-//}
-
 function xstatistics_render() {
   //prepare amount of nodes
   $count_nodes_tot = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node}"));
