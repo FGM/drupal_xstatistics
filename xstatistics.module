@@ -1,11 +1,9 @@
 <?php
 /* Link hook, defines module's links */
 function xstatistics_link($type, $node = 0, $main = 0) {
-   if ($type == "system") {
-    if ((user_access("administer xstatistics module") || (user_access("administer xstatistics")))) {
+   if ($type == "system" && user_access("access statistics")) {
       menu("admin/statistics/summary", t("Statistics Summary"), "xstatistics_render", 10);
-  }
-  }
+   }
 }
 function xstatistics_help($section = "admin/help#xstatistics") {
   $output = "";
@@ -14,7 +12,7 @@ function xstatistics_help($section = "admin/help#xstatistics") {
    case 'admin/system/modules#description':
       $output = t("Extends statistics for your site.");
       break;
-    case 'admin/xstatistics':
+    case 'admin/statistics/summary':
       $output = t("This page shows usage statistics of your site");
       break;
   }
@@ -42,7 +40,7 @@ function xstatistics_render() {
  
   $header = array("description", "value");
   $rows = array(array(t("Total amount of nodes"),$count_nodes_tot['COUNT(nid)']),
-                  array(t("Total amount of published nodes"),$count_nodes_pub['COUNT(nid)']),
+          array(t("Total amount of published nodes"),$count_nodes_pub['COUNT(nid)']),
           array(t("Total amount of nodes in the queue"),$count_nodes_que['COUNT(nid)']),
           array(t("Total amount of comments"),$count_comments_tot['COUNT(cid)']),
           array(t("Total amount of users"),$count_users_tot['COUNT(uid)']),
