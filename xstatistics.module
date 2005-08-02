@@ -1,0 +1,79 @@
+<?php
+function xstatistics_menu($may_cache) {
+  if ($may_cache) {
+    $items[] = array('title' => t('summary'),
+                     'path' => 'admin/logs/summary',
+                     'callback' => 'xstatistics_summary',
+                     'access' => user_access('access statistics'));
+    $items[] = array('title' => t('usage'),
+                     'path' => 'admin/logs/usage',
+                     'callback' => 'xstatistics_usage',
+                     'access' => user_access('access statistics'));
+  }
+  return $items;
+}
+function xstatistics_help($section = "admin/help#xstatistics") {
+  $output = "";
+
+  switch ($section) {
+   case 'admin/system/modules#description':
+      $output = t("Extends statistics for your site.");
+      break;
+    case 'admin/statistics/summary':
+      $output = t("This page shows usage statistics of your site");
+      break;
+  }
+  return $output;
+}
+
+function xstatistics_summary() {
+  //prepare amount of node_views
+  //todo rewrite to use count() and sum()
+  $res =  db_query("SELECT totalcount, daycount FROM {node_counter}");
+  while($count = db_fetch_object($res)) {
+    $count_nodes_view_tot = $count_nodes_view_tot + $count->totalcount;
+    $count_nodes_view_day = $count_nodes_view_day + $count->daycount;
+  }
+  
+  $count_referrer_ext_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url NOT LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
+  $count_referrer_int_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
+  $count_hits_day = db_fetch_array(db_query("SELECT COUNT(aid) AS hits FROM {accesslog} WHERE timestamp >= %d", (time()-86400)));
+  $count_pageviews_day = db_fetch_array(db_query("SELECT COUNT(path) AS hits FROM {accesslog} WHERE timestamp >= %d", (time()-86400)));
+
+  $header = array("description", "value");
+  $rows = array(array(t("Total amount of external referrers today"),$count_referrer_ext_day['referrers']),
+          array(t("Total amount of internal referrers today"),$count_referrer_int_day['referrers']),
+          array(t("Total amount of viewed nodes today"),$count_nodes_view_day),
+          array(t("Total amount of viewed nodes all time"),$count_nodes_view_tot),
+          array(t("Total amount of viewed pages today"), $count_pageviews_day['hits']),
+          array(t("Total amount of hits today"), $count_hits_day['hits'])
+          );
+  
+  $output = theme('table',$header, $rows);
+  print theme('page',$output);
+}
+
+function xstatistics_usage() {
+  //prepare amount of nodes
+  $count_nodes_tot = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node}"));
+  $count_nodes_pub = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node} WHERE status=1"));
+  $count_nodes_que = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node} WHERE moderate=1"));
+  
+  //prepare amount of users
+  $count_users_tot =  db_fetch_array(db_query("SELECT COUNT(uid) FROM {users}"));
+  
+  //prepare amount of comments
+  $count_comments_tot =  db_fetch_array(db_query("SELECT COUNT(cid) FROM {comments} WHERE status=0"));
+
+  $header = array("description", "value");
+  $rows = array(array(t("Total amount of nodes"),$count_nodes_tot['COUNT(nid)']),
+          array(t("Total amount of published nodes"),$count_nodes_pub['COUNT(nid)']),
+          array(t("Total amount of nodes in the queue"),$count_nodes_que['COUNT(nid)']),
+          array(t("Total amount of comments"),$count_comments_tot['COUNT(cid)']),
+          array(t("Total amount of users"),$count_users_tot['COUNT(uid)']),
+          );
+  
+  $output = theme('table', $header, $rows);
+  print theme('page', $output);
+}
+?>
