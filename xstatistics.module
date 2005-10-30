@@ -39,6 +39,8 @@ function xstatistics_summary() {
   $count_referrer_int_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
   $count_hits_day = db_fetch_array(db_query("SELECT COUNT(aid) AS hits FROM {accesslog} WHERE timestamp >= %d", (time()-86400)));
   $count_pageviews_day = db_fetch_array(db_query("SELECT COUNT(path) AS hits FROM {accesslog} WHERE timestamp >= %d", (time()-86400)));
+  $count_RSS_subscr = db_fetch_array(db_query("SELECT COUNT(DISTINCT(hostname)) AS hostname FROM {accesslog} WHERE path LIKE '%/feed' OR path LIKE 'rss.xml'"));
+
 
   $header = array("description", "value");
   $rows = array(array(t("Total amount of external referrers today"),$count_referrer_ext_day['referrers']),
@@ -46,7 +48,8 @@ function xstatistics_summary() {
           array(t("Total amount of viewed nodes today"),$count_nodes_view_day),
           array(t("Total amount of viewed nodes all time"),$count_nodes_view_tot),
           array(t("Total amount of viewed pages today"), $count_pageviews_day['hits']),
-          array(t("Total amount of hits today"), $count_hits_day['hits'])
+          array(t("Total amount of hits today"), $count_hits_day['hits']),
+          array(t("People subscribed to your RSS feed"), $count_RSS_subscr['hostname'])
           );
   
   $output = theme('table',$header, $rows);
