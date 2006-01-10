@@ -27,14 +27,22 @@ function xstatistics_help($section = "admin/help#xstatistics") {
 }
 
 function xstatistics_summary() {
-  //prepare amount of node_views
-  //todo rewrite to use count() and sum()
-  $res =  db_query("SELECT totalcount, daycount FROM {node_counter}");
-  while($count = db_fetch_object($res)) {
-    $count_nodes_view_tot = $count_nodes_view_tot + $count->totalcount;
-    $count_nodes_view_day = $count_nodes_view_day + $count->daycount;
+  if (variable_get('statistics_count_content_views', 0)) {
+    //prepare amount of node_views
+    //todo rewrite to use count() and sum()
+    $res =  db_query("SELECT totalcount, daycount FROM {node_counter}");
+    while($count = db_fetch_object($res)) {
+      $count_nodes_view_tot = $count_nodes_view_tot + $count->totalcount;
+      $count_nodes_view_day = $count_nodes_view_day + $count->daycount;
+    }
   }
-  
+  else {
+    //If counter is disabled then show disabled link
+    $disabled_link = l(t('enable Count Content Views to see values'),'admin/settings/statistics');
+    $count_nodes_view_tot = $disabled_link;
+    $count_nodes_view_day = $disabled_link;
+  }
+
   $count_referrer_ext_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url NOT LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
   $count_referrer_int_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
   $count_hits_day = db_fetch_array(db_query("SELECT COUNT(aid) AS hits FROM {accesslog} WHERE timestamp >= %d", (time()-86400)));
@@ -79,4 +87,3 @@ function xstatistics_usage() {
   $output = theme('table', $header, $rows);
   print theme('page', $output);
 }
-?>
