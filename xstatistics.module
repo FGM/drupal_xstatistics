@@ -136,7 +136,8 @@ function xstatistics_do_usage() {
           array(t('Published nodes'), $count_nodes_pub['COUNT(nid)']),
           array(t('Nodes in the queue'), $count_nodes_que['COUNT(nid)']),
           array(t('Comments'), $count_comments_tot['COUNT(cid)']),
-          array(t('Users'), $count_users_tot['COUNT(uid)']),
+          // without -1, it counts anonymous as a user
+          array(t('Users'), $count_users_tot['COUNT(uid)']-1),
           );
 
   return theme('table', $header, $rows);
