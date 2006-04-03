@@ -1,4 +1,19 @@
 <?php
+/* $id$ */
+function xstatistics_help($section = "admin/help#xstatistics") {
+  $output = "";
+
+  switch ($section) {
+   case 'admin/modules#description':
+      $output = t("Extends statistics for your site.");
+      break;
+    case 'admin/statistics/summary':
+      $output = t("This page shows usage statistics of your site");
+      break;
+  }
+  return $output;
+}
+
 function xstatistics_menu($may_cache) {
   if ($may_cache) {
     $items[] = array('title' => t('summary'),
@@ -11,19 +26,6 @@ function xstatistics_menu($may_cache) {
                      'access' => user_access('access statistics'));
   }
   return $items;
-}
-function xstatistics_help($section = "admin/help#xstatistics") {
-  $output = "";
-
-  switch ($section) {
-   case 'admin/system/modules#description':
-      $output = t("Extends statistics for your site.");
-      break;
-    case 'admin/statistics/summary':
-      $output = t("This page shows usage statistics of your site");
-      break;
-  }
-  return $output;
 }
 
 function xstatistics_summary() {
@@ -59,7 +61,7 @@ function xstatistics_summary() {
           array(t("Total amount of hits today"), $count_hits_day['hits']),
           array(t("People subscribed to your RSS feed"), $count_RSS_subscr['hostname'])
           );
-  
+
   $output = theme('table',$header, $rows);
   print theme('page',$output);
 }
@@ -69,10 +71,10 @@ function xstatistics_usage() {
   $count_nodes_tot = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node}"));
   $count_nodes_pub = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node} WHERE status=1"));
   $count_nodes_que = db_fetch_array(db_query("SELECT COUNT(nid) FROM {node} WHERE moderate=1"));
-  
+
   //prepare amount of users
   $count_users_tot =  db_fetch_array(db_query("SELECT COUNT(uid) FROM {users}"));
-  
+
   //prepare amount of comments
   $count_comments_tot =  db_fetch_array(db_query("SELECT COUNT(cid) FROM {comments} WHERE status=0"));
 
@@ -83,7 +85,7 @@ function xstatistics_usage() {
           array(t("Total amount of comments"),$count_comments_tot['COUNT(cid)']),
           array(t("Total amount of users"),$count_users_tot['COUNT(uid)']),
           );
-  
+
   $output = theme('table', $header, $rows);
   print theme('page', $output);
 }
