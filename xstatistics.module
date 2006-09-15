@@ -116,7 +116,8 @@ function xstatistics_do_summary() {
           array(t('RSS feed subscribers'), $count_RSS_subscr['hostname'])
           );
 
-  return theme('table', $header, $rows);
+  $attributes = array('summary' => t('xstatistics summary'));
+  return theme('table', $header, $rows, $attributes);
 }
 
 function xstatistics_do_usage() {
@@ -139,6 +140,6 @@ function xstatistics_do_usage() {
           // without -1, it counts anonymous as a user
           array(t('Users'), $count_users_tot['COUNT(uid)']-1),
           );
-
-  return theme('table', $header, $rows);
+  $attributes = array('summary' => t('xstatistics usage'));
+  return theme('table', $header, $rows, $attributes);
 }
