@@ -7,26 +7,30 @@
  * administer>logs area and/or in blocks
  */
 
+/**
+ * Implementation of hook_menu
+ */
 function xstatistics_menu($may_cache) {
   if ($may_cache) {
-    $items[] = array('title' => t('summary'),
+    $items[] = array('title' => t('Summary'),
                      'path' => 'admin/logs/summary',
                      'callback' => 'xstatistics_summary',
                      'access' => user_access('access statistics'));
-    $items[] = array('title' => t('usage'),
+    $items[] = array('title' => t('Usage'),
                      'path' => 'admin/logs/usage',
                      'callback' => 'xstatistics_usage',
                      'access' => user_access('access statistics'));
   }
   return $items;
 }
+
+/**
+ * Implementation of hook_help
+ */
 function xstatistics_help($section = 'admin/help#xstatistics') {
   $output = '';
 
   switch ($section) {
-   case 'admin/modules#description':
-      $output = t('Extends statistics for your site.');
-      break;
     case 'admin/help#xstatistics':
     case 'admin/statistics/summary':
       $output = t('This page shows usage statistics of your site');
@@ -36,6 +40,9 @@ function xstatistics_help($section = 'admin/help#xstatistics') {
 }
 
 
+/**
+ * Implementation of hook_block
+ */
 function xstatistics_block($op = 'list', $delta = 0) {
   $block = array();
   $title = array(t('Site summary'), t('Site usage'));
