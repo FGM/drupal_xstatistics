@@ -1,12 +1,16 @@
+# $Id$
+#
 # LANGUAGE translation of Drupal (xstatistics.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
-# No version information was available in the source files.
+# Generated from files:
+#  xstatistics.module,v 1.10 2007/02/23 10:56:15 ber
+#  xstatistics.info,v 1.1 2007/02/23 10:51:47 ber
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2006-06-12 18:30+0200\n"
+"POT-Creation-Date: 2007-02-23 11:56+0100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -15,75 +19,99 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: xstatistics.module:8
-msgid "Extends statistics for your site."
-msgstr ""
-
-#: xstatistics.module:11
-msgid "This page shows usage statistics of your site"
+#: xstatistics.module:15
+msgid "Summary"
 msgstr ""
 
 #: xstatistics.module:19
-msgid "summary"
+msgid "Usage"
 msgstr ""
 
-#: xstatistics.module:23
-msgid "usage"
+#: xstatistics.module:36
+msgid "This page shows usage statistics of your site"
 msgstr ""
 
-#: xstatistics.module:43
-msgid "enable Count Content Views to see values"
+#: xstatistics.module:48
+msgid "Site summary"
 msgstr ""
 
-#: xstatistics.module:56
-msgid "Total amount of external referrers today"
+#: xstatistics.module:48
+msgid "Site usage"
 msgstr ""
 
-#: xstatistics.module:57
-msgid "Total amount of internal referrers today"
+#: xstatistics.module:105
+msgid "Enable Count Content Views to see values"
 msgstr ""
 
-#: xstatistics.module:58
-msgid "Total amount of viewed nodes today"
+#: xstatistics.module:117
+msgid "External referrers today"
 msgstr ""
 
-#: xstatistics.module:59
-msgid "Total amount of viewed nodes all time"
+#: xstatistics.module:118
+msgid "Internal referrers today"
 msgstr ""
 
-#: xstatistics.module:60
-msgid "Total amount of viewed pages today"
+#: xstatistics.module:119
+msgid "Viewed nodes today"
 msgstr ""
 
-#: xstatistics.module:61
-msgid "Total amount of hits today"
+#: xstatistics.module:120
+msgid "Viewed nodes all time"
 msgstr ""
 
-#: xstatistics.module:62
-msgid "People subscribed to your RSS feed"
+#: xstatistics.module:121
+msgid "Viewed pages today"
 msgstr ""
 
-#: xstatistics.module:82
-msgid "Total amount of nodes"
+#: xstatistics.module:122
+msgid "Hits today"
 msgstr ""
 
-#: xstatistics.module:83
-msgid "Total amount of published nodes"
+#: xstatistics.module:123
+msgid "RSS feed subscribers"
 msgstr ""
 
-#: xstatistics.module:84
-msgid "Total amount of nodes in the queue"
+#: xstatistics.module:126
+msgid "xstatistics summary"
 msgstr ""
 
-#: xstatistics.module:85
-msgid "Total amount of comments"
+#: xstatistics.module:143
+msgid "Nodes"
 msgstr ""
 
-#: xstatistics.module:86
-msgid "Total amount of users"
+#: xstatistics.module:144
+msgid "Published nodes"
+msgstr ""
+
+#: xstatistics.module:145
+msgid "Nodes in the queue"
+msgstr ""
+
+#: xstatistics.module:146
+msgid "Comments"
+msgstr ""
+
+#: xstatistics.module:148
+msgid "Users"
+msgstr ""
+
+#: xstatistics.module:150
+msgid "xstatistics usage"
 msgstr ""
 
 #: xstatistics.module:0
 msgid "xstatistics"
+msgstr ""
+
+#: xstatistics.info:0
+msgid "Xstatistics"
+msgstr ""
+
+#: xstatistics.info:0
+msgid "Extends statistics for your site."
+msgstr ""
+
+#: xstatistics.info:0
+msgid "Core - optional"
 msgstr ""
 
