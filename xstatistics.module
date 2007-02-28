@@ -176,7 +176,7 @@ function xstatistics_referrers_by_base() {
   $result = pager_query($query, 30, 0, $query_cnt, $_SERVER['HTTP_HOST']);
 
   while ($referrer = db_fetch_object($result)) {
-    $rows[] = array($referrer->hits, '<a href="'. check_url($referrer->base) .'">'. check_plain(_statistics_column_width($referrer->base)) .'</a>', t('%time ago', array('%time' => format_interval(time() - $referrer->last))));
+    $rows[] = array($referrer->hits, _statistics_link($referrer->base), t('%time ago', array('%time' => format_interval(time() - $referrer->last))));
   }
 
   $output = theme('table', $header, $rows);
