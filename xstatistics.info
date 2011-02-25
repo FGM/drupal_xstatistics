@@ -1,4 +1,3 @@
-; $Id$
 name = Xstatistics
 description = Extends statistics for your site.
 package = Core - optional
