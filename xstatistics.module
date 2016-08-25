@@ -12,12 +12,14 @@
 function xstatistics_menu() {
   $items = [];
   $items['admin/reports/summary'] = [
-    'title' => 'Summary',
+    'title' => 'XStatistics: summary',
+    'description' => 'View a summary of referrers, nodes and pages views, and feed subscribers',
     'page callback' => 'xstatistics_summary',
     'access arguments' => ['access statistics'],
   ];
   $items['admin/reports/usage'] = [
-    'title' => 'Usage',
+    'title' => 'XStatistics: usage',
+    'description' => 'View a summary of nodes by status, comments, and users',
     'page callback' => 'xstatistics_usage',
     'access arguments' => ['access statistics'],
   ];
