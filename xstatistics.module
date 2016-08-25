@@ -2,49 +2,56 @@
 
 /**
  * @file
- * Extrapolates extra site statistics for view in the
- * administer>logs area and/or in blocks
+ * Extrapolates extra site statistics for view in the administer>reports area
+ * and/or in blocks
  */
 
 /**
- * Implementation of hook_menu
+ * Implements hook_menu().
  */
-function xstatistics_menu($may_cache) {
-  if ($may_cache) {
-    $items[] = array('title' => t('Summary'),
-                     'path' => 'admin/logs/summary',
-                     'callback' => 'xstatistics_summary',
-                     'access' => user_access('access statistics'));
-    $items[] = array('title' => t('Usage'),
-                     'path' => 'admin/logs/usage',
-                     'callback' => 'xstatistics_usage',
-                     'access' => user_access('access statistics'));
-  }
+function xstatistics_menu() {
+  $items = [];
+  $items['admin/reports/summary'] = [
+    'title' => 'XStatistics: summary',
+    'description' => 'View a summary of referrers, nodes and pages views, and feed subscribers',
+    'page callback' => 'xstatistics_summary',
+    'access arguments' => ['access statistics'],
+  ];
+  $items['admin/reports/usage'] = [
+    'title' => 'XStatistics: usage',
+    'description' => 'View a summary of nodes by status, comments, and users',
+    'page callback' => 'xstatistics_usage',
+    'access arguments' => ['access statistics'],
+  ];
+
   return $items;
 }
 
 /**
- * Implementation of hook_help
+ * Implements hook_help().
  */
-function xstatistics_help($section = 'admin/help#xstatistics') {
+function xstatistics_help($section) {
   $output = '';
 
   switch ($section) {
     case 'admin/help#xstatistics':
-    case 'admin/statistics/summary':
+    case 'admin/reports/summary':
+    case 'admin/reports/usage':
       $output = t('This page shows usage statistics of your site');
       break;
   }
   return $output;
 }
 
-
 /**
- * Implementation of hook_block
+ * Implements hook_block().
  */
 function xstatistics_block($op = 'list', $delta = 0) {
-  $block = array();
-  $title = array(t('Site summary'), t('Site usage'));
+  $block = [];
+  $title = [
+    t('Site summary'),
+    t('Site usage'),
+  ];
 
   switch ($op) {
     case 'list':
@@ -68,84 +75,195 @@ function xstatistics_block($op = 'list', $delta = 0) {
     return $block;
 }
 
+/**
+ * Generate block/page summary data.
+ *
+ * @param string $mode
+ *   The type of formatting to use: "page" or "block".
+ *
+ * @return string
+ *   The formatted result.
+ */
 function xstatistics_summary($mode = 'page') {
   $output = xstatistics_do_summary();
   return xstatistics_output($mode, $output);
 }
 
+/**
+ * Generate block/page usage data.
+ *
+ * @param string $mode
+ *   The type of formatting to use: "page" or "block".
+ *
+ * @return string
+ *   The formatted result.
+ */
 function xstatistics_usage($mode = 'page') {
   $output = xstatistics_do_usage();
   return xstatistics_output($mode, $output);
 }
 
+/**
+ * Format block/page summary data.
+ *
+ * @param string $mode
+ *   The type of formatting to use: "page" or "block".
+ * @param string $output
+ *   The data, already formatted, to wrap for display.
+ *
+ * @return mixed
+ *   The rendered data.
+ */
 function xstatistics_output($mode = 'page', $output) {
   switch($mode) {
     case 'page':
       print theme($mode, $output);
       break;
+
     case 'block':
       return $output;
       break;
+
+    default:
+      watchdog('xstatistics', 'Unexpected mode: @mode', ['@mode' => $mode], WATCHDOG_ERROR);
   }
 }
 
+/**
+ * Build summary data.
+ *
+ * @return string
+ *   A formatted table of results.
+ */
 function xstatistics_do_summary() {
   if (variable_get('statistics_count_content_views', 0)) {
-    // prepare amount of node_views
-    // todo rewrite to use count() and sum()
+    // Prepare amount of node_views.
+    // TODO rewrite to use count() and sum()
+    $count_nodes_view_total = 0;
+    $count_nodes_view_daily = 0;
     $res =  db_query('SELECT totalcount, daycount FROM {node_counter}');
-    while($count = db_fetch_object($res)) {
-      $count_nodes_view_tot = $count_nodes_view_tot + $count->totalcount;
-      $count_nodes_view_day = $count_nodes_view_day + $count->daycount;
+    while ($count = db_fetch_object($res)) {
+      $count_nodes_view_total = $count_nodes_view_total + $count->totalcount;
+      $count_nodes_view_daily = $count_nodes_view_daily + $count->daycount;
     }
   }
   else {
-    // If counter is disabled then show disabled link
-    $disabled_link = l(t('Enable Count Content Views to see values'), 'admin/settings/statistics');
-    $count_nodes_view_tot = $disabled_link;
-    $count_nodes_view_day = $disabled_link;
+    // If counter is disabled then show disabled link.
+    $disabled_link = l(t('Enable Count Content Views to see values'), 'admin/reports/settings');
+    $count_nodes_view_total = $disabled_link;
+    $count_nodes_view_daily = $disabled_link;
   }
 
-  $count_referrer_ext_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url NOT LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
-  $count_referrer_int_day = db_fetch_array(db_query("SELECT COUNT(DISTINCT(url)) AS referrers FROM {accesslog} WHERE url <> '' AND url LIKE '%%%s%%' AND timestamp >= %d", $_SERVER['HTTP_HOST'], (time()-86400)));
-  $count_hits_day = db_fetch_array(db_query('SELECT COUNT(aid) AS hits FROM {accesslog} WHERE timestamp >= %d', (time()-86400)));
-  $count_pageviews_day = db_fetch_array(db_query('SELECT COUNT(path) AS hits FROM {accesslog} WHERE timestamp >= %d', (time()-86400)));
-  $count_RSS_subscr = db_fetch_array(db_query("SELECT COUNT(DISTINCT(hostname)) AS hostname FROM {accesslog} WHERE path LIKE '%/feed' OR path LIKE 'rss.xml'"));
+  $yesterday = time() - 86400;
 
-  $header = array('description', 'value');
-  $rows = array(array(t('External referrers today'), $count_referrer_ext_day['referrers']),
-          array(t('Internal referrers today'), $count_referrer_int_day['referrers']),
-          array(t('Viewed nodes today'), $count_nodes_view_day),
-          array(t('Viewed nodes all time'), $count_nodes_view_tot),
-          array(t('Viewed pages today'), $count_pageviews_day['hits']),
-          array(t('Hits today'), $count_hits_day['hits']),
-          array(t('RSS feed subscribers'), $count_RSS_subscr['hostname'])
-          );
+  $sql = <<<SQL
+SELECT COUNT(DISTINCT(url)) AS referrers 
+FROM {accesslog} 
+WHERE url <> '' AND url NOT LIKE '%%%s%%' AND timestamp >= %d
+SQL;
+  $count_referrer_ext_day = db_fetch_array(db_query($sql, $_SERVER['HTTP_HOST'], $yesterday));
 
-  $attributes = array('summary' => t('xstatistics summary'));
+  $sql = <<<SQL
+SELECT COUNT(DISTINCT(url)) AS referrers 
+FROM {accesslog} 
+WHERE url <> '' AND url LIKE '%%%s%%' AND timestamp >= %d
+SQL;
+  $count_referrer_int_day = db_fetch_array(db_query($sql, $_SERVER['HTTP_HOST'], $yesterday));
+
+  $sql = <<<SQL
+SELECT COUNT(aid) AS hits 
+FROM {accesslog} 
+WHERE timestamp >= %d
+SQL;
+  $count_hits_day = db_fetch_array(db_query($sql, $yesterday));
+
+  $sql = <<<SQL
+SELECT COUNT(path) AS hits 
+FROM {accesslog} 
+WHERE timestamp >= %d
+SQL;
+  $count_pageviews_day = db_fetch_array(db_query($sql, $yesterday));
+
+  $sql = <<<SQL
+SELECT COUNT(DISTINCT(hostname)) AS hostname 
+FROM {accesslog} 
+WHERE path LIKE '%/feed' OR path LIKE 'rss.xml'
+SQL;
+  $count_RSS_subscr = db_fetch_array(db_query($sql));
+
+  $header = [
+    t('Description'),
+    t('Value'),
+  ];
+  $rows = [
+    [t('External referrers today'), $count_referrer_ext_day['referrers']],
+    [t('Internal referrers today'), $count_referrer_int_day['referrers']],
+    [t('Viewed nodes today'), $count_nodes_view_daily],
+    [t('Viewed nodes all time'), $count_nodes_view_total],
+    [t('Viewed pages today'), $count_pageviews_day['hits']],
+    [t('Hits today'), $count_hits_day['hits']],
+    [t('RSS feed subscribers'), $count_RSS_subscr['hostname']],
+  ];
+
+  $attributes = ['summary' => t('Xstatistics summary')];
   return theme('table', $header, $rows, $attributes);
 }
 
+/**
+ * Build usage data.
+ *
+ * @return string
+ *   A formatted table of results.
+ */
 function xstatistics_do_usage() {
-  //prepare amount of nodes
-  $count_nodes_tot = db_fetch_array(db_query('SELECT COUNT(nid) FROM {node}'));
-  $count_nodes_pub = db_fetch_array(db_query('SELECT COUNT(nid) FROM {node} WHERE status=1'));
-  $count_nodes_que = db_fetch_array(db_query('SELECT COUNT(nid) FROM {node} WHERE moderate=1'));
+  // Prepare amount of nodes.
+  $sql = <<<SQL
+SELECT COUNT(nid) 
+FROM {node}
+SQL;
+  $count_nodes_total = db_fetch_array(db_query($sql));
 
-  //prepare amount of users
-  $count_users_tot =  db_fetch_array(db_query('SELECT COUNT(uid) FROM {users}'));
+  $sql = <<<SQL
+SELECT COUNT(nid) 
+FROM {node} 
+WHERE status=1
+SQL;
+  $count_nodes_published = db_fetch_array(db_query($sql));
 
-  //prepare amount of comments
-  $count_comments_tot =  db_fetch_array(db_query('SELECT COUNT(cid) FROM {comments} WHERE status=0'));
+  $sql = <<<SQL
+SELECT COUNT(nid) 
+FROM {node} 
+WHERE moderate = 1
+SQL;
+  $count_nodes_queueud = db_fetch_array(db_query($sql));
 
-  $header = array('description', 'value');
-  $rows = array(array(t('Nodes'), $count_nodes_tot['COUNT(nid)']),
-          array(t('Published nodes'), $count_nodes_pub['COUNT(nid)']),
-          array(t('Nodes in the queue'), $count_nodes_que['COUNT(nid)']),
-          array(t('Comments'), $count_comments_tot['COUNT(cid)']),
-          // without -1, it counts anonymous as a user
-          array(t('Users'), $count_users_tot['COUNT(uid)']-1),
-          );
-  $attributes = array('summary' => t('xstatistics usage'));
+  // Prepare amount of users.
+  $sql = <<<SQL
+SELECT COUNT(uid) 
+FROM {users}
+SQL;
+  $count_users_total = db_fetch_array(db_query($sql));
+
+  // Prepare amount of comments.
+  $sql = <<<SQL
+SELECT COUNT(cid) 
+FROM {comments} 
+WHERE status = 0
+SQL;
+  $count_comments_total =  db_fetch_array(db_query($sql));
+
+  $header = [
+    t('Description'),
+    t('Value'),
+  ];
+  $rows = [
+    [t('Nodes'), $count_nodes_total['COUNT(nid)']],
+    [t('Published nodes'), $count_nodes_published['COUNT(nid)']],
+    [t('Nodes in the queue'), $count_nodes_queueud['COUNT(nid)']],
+    [t('Comments'), $count_comments_total['COUNT(cid)']],
+    // Without -1, it counts anonymous as a user.
+    [t('Users'), $count_users_total['COUNT(uid)'] - 1],
+   ];
+  $attributes = ['summary' => t('Xstatistics usage')];
   return theme('table', $header, $rows, $attributes);
 }

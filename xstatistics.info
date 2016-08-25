@@ -1,4 +1,6 @@
 name = Xstatistics
 description = Extends statistics for your site.
-package = Core - optional
-dependencies = statistics
+package = Statistics
+dependencies[] = statistics
+core = 6.x
+php = 5.4
